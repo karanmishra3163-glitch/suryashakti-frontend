@@ -12,7 +12,7 @@
 // ============================================================
 
 // Backend ka URL — development mein localhost, production mein real URL
-const API_BASE_URL = 'https://localhost:56497/api';
+const API_BASE_URL = 'https://suryashakti-backend-production.up.railway.app/api';
 // Production mein: const API_BASE_URL = 'https://api.suryashakti.in/api';
 
 // ─────────────────────────────────────────────────────────────
