@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuryaShakti – Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1a73e8; --blue-dark:#1558b0; --blue-light:#e8f4fd;
+  --green:#22c55e; --green-bg:#dcfce7;
+  --yellow:#f59e0b; --yellow-bg:#fef3c7;
+  --red:#ef4444; --red-bg:#fee2e2;
+  --purple:#8b5cf6; --purple-bg:#ede9fe;
+  --white:#fff; --bg:#f0f6fc; --dark:#0d1a2d; --text:#1a2840;
+  --gray:#6b7280; --border:rgba(26,115,232,0.12);
+  --shadow:0 2px 16px rgba(26,115,232,0.08);
+  --shadow2:0 8px 32px rgba(26,115,232,0.15);
+  --sidebar:240px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar);position:fixed;top:0;left:0;bottom:0;
+  background:var(--dark);display:flex;flex-direction:column;
+  z-index:100;transition:transform 0.3s;
+}
+.sidebar-logo{
+  padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;gap:10px;
+}
+.logo-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f5a623,#e8820c);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-text{font-size:1.05rem;font-weight:800;color:#fff;}
+.logo-text span{color:var(--blue);}
+
+.sidebar-nav{flex:1;padding:16px 0;overflow-y:auto;}
+.nav-section-title{font-size:0.68rem;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;padding:16px 20px 6px;}
+.nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 20px;cursor:pointer;
+  color:rgba(255,255,255,0.6);font-size:0.88rem;font-weight:500;
+  transition:all 0.2s;border-left:3px solid transparent;
+  text-decoration:none;
+}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,0.05);}
+.nav-item.active{color:#fff;background:rgba(26,115,232,0.2);border-left-color:var(--blue);}
+.nav-item .icon{font-size:1rem;width:20px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:0.68rem;font-weight:700;padding:2px 7px;border-radius:50px;min-width:20px;text-align:center;}
+
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06);}
+.admin-info{display:flex;align-items:center;gap:10px;}
+.admin-avatar{width:36px;height:36px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:0.85rem;flex-shrink:0;}
+.admin-name{font-size:0.85rem;font-weight:600;color:#fff;}
+.admin-role{font-size:0.72rem;color:rgba(255,255,255,0.4);}
+
+/* ── MAIN CONTENT ── */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* ── TOP BAR ── */
+.topbar{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 32px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+  box-shadow:var(--shadow);
+}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.page-title{font-size:1.1rem;font-weight:800;color:var(--dark);}
+.page-subtitle{font-size:0.8rem;color:var(--gray);}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+
+.topbar-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:10px;border:none;
+  font-size:0.82rem;font-weight:600;cursor:pointer;
+  font-family:inherit;transition:all 0.2s;
+}
+.btn-refresh{background:var(--blue-light);color:var(--blue);}
+.btn-refresh:hover{background:var(--blue);color:#fff;}
+.btn-export{background:var(--green-bg);color:#15803d;}
+.btn-export:hover{background:var(--green);color:#fff;}
+
+.live-indicator{
+  display:flex;align-items:center;gap:6px;
+  font-size:0.78rem;color:var(--green);font-weight:600;
+}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* ── PAGE CONTENT ── */
+.content{padding:28px 32px;flex:1;}
+
+/* ── STAT CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:28px;}
+.stat-card{
+  background:var(--white);border-radius:16px;padding:22px;
+  box-shadow:var(--shadow);border:1px solid var(--border);
+  transition:transform 0.2s,box-shadow 0.2s;
+  cursor:default;
+}
+.stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow2);}
+.stat-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.stat-label{font-size:0.78rem;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.05em;}
+.stat-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.stat-num{font-size:2rem;font-weight:800;color:var(--dark);line-height:1;}
+.stat-change{font-size:0.78rem;margin-top:6px;font-weight:600;}
+.stat-change.up{color:var(--green);}
+.stat-change.neutral{color:var(--gray);}
+
+/* ── FILTERS & SEARCH ── */
+.filters-bar{
+  background:var(--white);border-radius:14px;padding:16px 20px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  margin-bottom:20px;box-shadow:var(--shadow);border:1px solid var(--border);
+}
+.search-box{
+  display:flex;align-items:center;gap:8px;flex:1;min-width:200px;
+  background:var(--bg);border-radius:10px;padding:8px 14px;
+  border:1.5px solid var(--border);transition:border-color 0.2s;
+}
+.search-box:focus-within{border-color:var(--blue);}
+.search-box input{border:none;background:none;outline:none;font-family:inherit;font-size:0.88rem;color:var(--text);flex:1;}
+.search-box input::placeholder{color:var(--gray);}
+
+.filter-select{
+  padding:8px 14px;border:1.5px solid var(--border);border-radius:10px;
+  font-family:inherit;font-size:0.85rem;color:var(--text);background:var(--bg);
+  cursor:pointer;transition:border-color 0.2s;outline:none;
+}
+.filter-select:focus{border-color:var(--blue);}
+
+.filter-btn{
+  padding:8px 16px;border-radius:10px;border:none;
+  font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;
+  transition:all 0.2s;white-space:nowrap;
+}
+.filter-btn.active{background:var(--blue);color:#fff;}
+.filter-btn:not(.active){background:var(--bg);color:var(--gray);border:1.5px solid var(--border);}
+.filter-btn:hover:not(.active){border-color:var(--blue);color:var(--blue);}
+
+/* ── ENQUIRIES TABLE ── */
+.table-card{
+  background:var(--white);border-radius:16px;
+  box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;
+}
+.table-header{
+  padding:18px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.table-title{font-size:0.95rem;font-weight:800;color:var(--dark);}
+.table-count{font-size:0.82rem;color:var(--gray);background:var(--bg);padding:3px 10px;border-radius:50px;}
+
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--bg);}
+th{padding:11px 16px;font-size:0.75rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.06em;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);}
+td{padding:14px 16px;font-size:0.85rem;border-bottom:1px solid rgba(26,115,232,0.05);vertical-align:middle;}
+tr:last-child td{border:none;}
+tr:hover td{background:rgba(26,115,232,0.02);}
+
+.customer-cell{display:flex;flex-direction:column;gap:2px;}
+.customer-name{font-weight:700;color:var(--dark);}
+.customer-city{font-size:0.78rem;color:var(--gray);}
+
+.phone-link{
+  display:flex;align-items:center;gap:6px;
+  color:var(--blue);text-decoration:none;font-weight:600;font-size:0.85rem;
+}
+.phone-link:hover{text-decoration:underline;}
+
+.status-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:50px;
+  font-size:0.72rem;font-weight:700;white-space:nowrap;
+}
+.status-new{background:var(--blue-light);color:var(--blue);}
+.status-viewed{background:var(--yellow-bg);color:#92400e;}
+.status-inprogress{background:var(--purple-bg);color:#5b21b6;}
+.status-completed{background:var(--green-bg);color:#15803d;}
+.status-cancelled{background:var(--red-bg);color:#991b1b;}
+
+.service-tag{font-size:0.78rem;color:var(--text);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.system-tag{font-size:0.8rem;font-weight:600;color:var(--blue);background:var(--blue-light);padding:3px 8px;border-radius:6px;}
+.time-ago{font-size:0.78rem;color:var(--gray);}
+
+.action-group{display:flex;align-items:center;gap:6px;}
+.act-btn{
+  width:30px;height:30px;border-radius:8px;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:0.85rem;
+  transition:all 0.2s;
+}
+.act-view{background:var(--blue-light);color:var(--blue);}
+.act-view:hover{background:var(--blue);color:#fff;}
+.act-wa{background:var(--green-bg);color:#15803d;}
+.act-wa:hover{background:var(--green);color:#fff;}
+.act-call{background:var(--yellow-bg);color:#92400e;}
+.act-call:hover{background:var(--yellow);color:#fff;}
+.act-del{background:var(--red-bg);color:var(--red);}
+.act-del:hover{background:var(--red);color:#fff;}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.45);
+  z-index:200;display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.open{display:flex;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+.modal{
+  background:var(--white);border-radius:20px;width:90%;max-width:600px;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,0.2);
+  animation:slideUp 0.25s ease;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+.modal-header{
+  padding:22px 28px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--white);z-index:1;border-radius:20px 20px 0 0;
+}
+.modal-title{font-size:1.05rem;font-weight:800;color:var(--dark);}
+.modal-close{
+  width:32px;height:32px;border-radius:8px;border:none;background:var(--bg);
+  cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;
+  transition:background 0.2s;
+}
+.modal-close:hover{background:var(--red-bg);color:var(--red);}
+.modal-body{padding:24px 28px;}
+
+.detail-section{margin-bottom:22px;}
+.detail-section-title{font-size:0.78rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.detail-item{}
+.detail-key{font-size:0.75rem;color:var(--gray);font-weight:600;margin-bottom:3px;}
+.detail-val{font-size:0.9rem;font-weight:700;color:var(--dark);}
+
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+.modal-btn{
+  display:flex;align-items:center;gap:8px;padding:11px 20px;
+  border-radius:10px;border:none;font-family:inherit;font-size:0.85rem;
+  font-weight:700;cursor:pointer;transition:all 0.2s;
+}
+.mbt-wa{background:#25d366;color:#fff;box-shadow:0 4px 12px rgba(37,211,102,0.3);}
+.mbt-wa:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(37,211,102,0.4);}
+.mbt-call{background:var(--blue);color:#fff;box-shadow:0 4px 12px rgba(26,115,232,0.3);}
+.mbt-call:hover{transform:translateY(-2px);}
+.mbt-complete{background:var(--green-bg);color:#15803d;border:1.5px solid rgba(34,197,94,0.2);}
+.mbt-complete:hover{background:var(--green);color:#fff;}
+
+.status-select{
+  width:100%;padding:10px 14px;border:1.5px solid var(--border);
+  border-radius:10px;font-family:inherit;font-size:0.88rem;
+  background:var(--bg);color:var(--text);outline:none;
+  transition:border-color 0.2s;
+}
+.status-select:focus{border-color:var(--blue);}
+.notes-textarea{
+  width:100%;padding:10px 14px;border:1.5px solid var(--border);
+  border-radius:10px;font-family:inherit;font-size:0.85rem;
+  background:var(--bg);color:var(--text);outline:none;resize:vertical;
+  min-height:80px;transition:border-color 0.2s;
+}
+.notes-textarea:focus{border-color:var(--blue);}
+.save-btn{
+  width:100%;padding:12px;background:var(--blue);color:#fff;
+  border:none;border-radius:10px;font-family:inherit;font-size:0.9rem;
+  font-weight:700;cursor:pointer;margin-top:12px;transition:all 0.2s;
+}
+.save-btn:hover{background:var(--blue-dark);}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:var(--dark);color:#fff;padding:14px 22px;
+  border-radius:12px;font-size:0.88rem;font-weight:600;
+  box-shadow:0 8px 24px rgba(0,0,0,0.2);
+  display:none;align-items:center;gap:10px;
+  max-width:320px;
+}
+.toast.show{display:flex;animation:toastIn 0.3s ease;}
+@keyframes toastIn{from{transform:translateY(10px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:60px 20px;color:var(--gray);}
+.empty-state .icon{font-size:3rem;margin-bottom:12px;}
+.empty-state p{font-size:0.9rem;}
+
+/* ── LOADING ── */
+.loading-row td{text-align:center;padding:40px;color:var(--gray);}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(26,115,232,0.2);border-radius:10px;}
+::-webkit-scrollbar-thumb:hover{background:var(--blue);}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .detail-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">☀️</div>
+    <span class="logo-text">Surya<span>Shakti</span></span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">Main</div>
+    <a class="nav-item active" onclick="showPage('dashboard')">
+      <span class="icon">📊</span> Dashboard
+    </a>
+    <a class="nav-item" onclick="showPage('enquiries')">
+      <span class="icon">📋</span> All Enquiries
+      <span class="nav-badge" id="newBadge">0</span>
+    </a>
+
+    <div class="nav-section-title">Filter By Status</div>
+    <a class="nav-item" onclick="filterByStatus('New')"><span class="icon">🆕</span> New</a>
+    <a class="nav-item" onclick="filterByStatus('InProgress')"><span class="icon">⚙️</span> In Progress</a>
+    <a class="nav-item" onclick="filterByStatus('Completed')"><span class="icon">✅</span> Completed</a>
+    <a class="nav-item" onclick="filterByStatus('Cancelled')"><span class="icon">❌</span> Cancelled</a>
+
+    <div class="nav-section-title">Actions</div>
+    <a class="nav-item" href="https://wa.me/917834890440" target="_blank"><span class="icon">💬</span> WhatsApp</a>
+    <a class="nav-item" onclick="exportCSV()"><span class="icon">📥</span> Export CSV</a>
+    <a class="nav-item" href="index.html" target="_blank"><span class="icon">🌐</span> View Website</a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-info">
+      <div class="admin-avatar">A</div>
+      <div>
+        <div class="admin-name">Admin</div>
+        <div class="admin-role">SuryaShakti Solar</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="page-title" id="pageTitle">Dashboard</div>
+        <div class="page-subtitle" id="pageSubtitle">Overview of all enquiries</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-indicator"><div class="live-dot"></div> Live</div>
+      <button class="topbar-btn btn-refresh" onclick="loadData()">🔄 Refresh</button>
+      <button class="topbar-btn btn-export" onclick="exportCSV()">📥 Export CSV</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <span class="stat-label">Total Enquiries</span>
+          <div class="stat-icon" style="background:#e8f4fd;">📋</div>
+        </div>
+        <div class="stat-num" id="st_total">–</div>
+        <div class="stat-change neutral" id="st_total_sub">Loading...</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <span class="stat-label">New / Unread</span>
+          <div class="stat-icon" style="background:#dbeafe;">🆕</div>
+        </div>
+        <div class="stat-num" style="color:var(--blue)" id="st_new">–</div>
+        <div class="stat-change neutral" id="st_new_sub">Awaiting response</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <span class="stat-label">Today's Enquiries</span>
+          <div class="stat-icon" style="background:#fef3c7;">📅</div>
+        </div>
+        <div class="stat-num" style="color:var(--yellow)" id="st_today">–</div>
+        <div class="stat-change up" id="st_today_sub">Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <span class="stat-label">Completed</span>
+          <div class="stat-icon" style="background:#dcfce7;">✅</div>
+        </div>
+        <div class="stat-num" style="color:var(--green)" id="st_done">–</div>
+        <div class="stat-change up" id="st_done_sub">Deals closed</div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-bar">
+      <div class="search-box">
+        🔍
+        <input type="text" placeholder="Search by name, phone, city..." id="searchInput" oninput="filterTable()">
+      </div>
+      <select class="filter-select" id="statusFilter" onchange="filterTable()">
+        <option value="">All Status</option>
+        <option value="New">New</option>
+        <option value="Viewed">Viewed</option>
+        <option value="InProgress">In Progress</option>
+        <option value="Completed">Completed</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+      <select class="filter-select" id="serviceFilter" onchange="filterTable()">
+        <option value="">All Services</option>
+        <option>Solar Installation (On-Grid)</option>
+        <option>Solar Installation (Off-Grid)</option>
+        <option>Solar Installation (Hybrid)</option>
+        <option>Subsidy Application Help</option>
+        <option>AMC / Maintenance</option>
+        <option>Free Consultation</option>
+      </select>
+      <button class="filter-btn active" onclick="clearFilters()">🔄 Clear</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">📋 All Enquiries</span>
+        <span class="table-count" id="tableCount">Loading...</span>
+      </div>
+      <div class="table-wrap">
+        <table id="enquiryTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Service</th>
+              <th>System</th>
+              <th>Status</th>
+              <th>Received</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr class="loading-row">
+              <td colspan="8">
+                <div class="spinner"></div>
+                Loading enquiries...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Enquiry Details</span>
+      <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// ADMIN PANEL JAVASCRIPT
+// Yeh code Backend API se data fetch karta hai aur table mein dikhata hai
+// ============================================================
+
+const API = 'http://localhost:5000/api'; // Backend URL — change as needed
+let allEnquiries = [];   // Sab enquiries memory mein
+let currentFilter = '';  // Active status filter
+
+// ─── PAGE LOAD ───
+document.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  // Auto-refresh every 60 seconds
+  setInterval(loadData, 60000);
+});
+
+// ─── LOAD DATA FROM BACKEND ───
+async function loadData() {
+  try {
+    // Backend API call karo
+    const res = await fetch(`${API}/enquiry`);
+    if (!res.ok) throw new Error('API error');
+
+    const json = await res.json();
+    allEnquiries = json.data || [];
+
+    updateStats();
+    renderTable(allEnquiries);
+    updateNewBadge();
+
+  } catch (err) {
+    // Backend available nahi — demo data use karo
+    console.warn('Backend not connected, using demo data:', err.message);
+    allEnquiries = getDemoData();
+    updateStats();
+    renderTable(allEnquiries);
+    updateNewBadge();
+  }
+}
+
+// ─── UPDATE STAT CARDS ───
+function updateStats() {
+  const total     = allEnquiries.length;
+  const newCount  = allEnquiries.filter(e => e.status === 'New').length;
+  const today     = allEnquiries.filter(e => isToday(e.createdAt)).length;
+  const completed = allEnquiries.filter(e => e.status === 'Completed').length;
+  const thisWeek  = allEnquiries.filter(e => isThisWeek(e.createdAt)).length;
+
+  document.getElementById('st_total').textContent    = total;
+  document.getElementById('st_new').textContent      = newCount;
+  document.getElementById('st_today').textContent    = today;
+  document.getElementById('st_done').textContent     = completed;
+  document.getElementById('st_total_sub').textContent = `${thisWeek} this week`;
+  document.getElementById('st_new_sub').textContent  = newCount > 0 ? '⚠️ Needs attention' : '✅ All read';
+}
+
+// ─── RENDER TABLE ───
+function renderTable(data) {
+  const tbody = document.getElementById('tableBody');
+  document.getElementById('tableCount').textContent = `${data.length} enquiries`;
+
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">📭</div><p>No enquiries found</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map((e, i) => `
+    <tr>
+      <td style="font-weight:700;color:var(--blue);">#${e.id}</td>
+      <td>
+        <div class="customer-cell">
+          <span class="customer-name">${escHtml(e.fullName)}</span>
+          <span class="customer-city">📍 ${escHtml(e.city)}</span>
+        </div>
+      </td>
+      <td>
+        <a href="tel:${e.phoneNumber}" class="phone-link">📞 ${escHtml(e.phoneNumber)}</a>
+      </td>
+      <td><div class="service-tag" title="${escHtml(e.serviceRequired)}">${escHtml(e.serviceRequired)}</div></td>
+      <td>${e.systemSize ? `<span class="system-tag">⚡ ${escHtml(e.systemSize)}</span>` : '<span style="color:var(--gray);font-size:0.78rem;">Not set</span>'}</td>
+      <td><span class="status-badge status-${e.status.toLowerCase().replace(' ','')}">
+        ${statusIcon(e.status)} ${e.status}
+      </span></td>
+      <td><span class="time-ago">${timeAgo(e.createdAt)}</span></td>
+      <td>
+        <div class="action-group">
+          <button class="act-btn act-view" onclick="viewEnquiry(${e.id})" title="View Details">👁️</button>
+          <a href="https://wa.me/91${e.phoneNumber.replace(/\D/g,'')}?text=Hello ${encodeURIComponent(e.fullName)}! This is SuryaShakti Solar. Regarding your enquiry for ${encodeURIComponent(e.serviceRequired)}." target="_blank" class="act-btn act-wa" title="WhatsApp">💬</a>
+          <a href="tel:${e.phoneNumber}" class="act-btn act-call" title="Call">📞</a>
+          <button class="act-btn act-del" onclick="deleteEnquiry(${e.id})" title="Delete">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ─── VIEW ENQUIRY DETAIL ───
+async function viewEnquiry(id) {
+  const e = allEnquiries.find(x => x.id === id);
+  if (!e) return;
+
+  // Mark as Viewed if New
+  if (e.status === 'New') {
+    e.status = 'Viewed';
+    try { await fetch(`${API}/enquiry/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({status:1}) }); } catch(_){}
+    renderTable(filterCurrentData());
+  }
+
+  document.getElementById('modalTitle').textContent = `Enquiry #${e.id} — ${e.fullName}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="detail-section">
+      <div class="detail-section-title">👤 Customer Information</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-key">Full Name</div><div class="detail-val">${escHtml(e.fullName)}</div></div>
+        <div class="detail-item"><div class="detail-key">Phone</div><div class="detail-val"><a href="tel:${e.phoneNumber}" style="color:var(--blue)">${escHtml(e.phoneNumber)}</a></div></div>
+        <div class="detail-item"><div class="detail-key">Email</div><div class="detail-val">${escHtml(e.email || 'Not provided')}</div></div>
+        <div class="detail-item"><div class="detail-key">City</div><div class="detail-val">📍 ${escHtml(e.city)}</div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">⚡ Service Details</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-key">Service Required</div><div class="detail-val">${escHtml(e.serviceRequired)}</div></div>
+        <div class="detail-item"><div class="detail-key">System Size</div><div class="detail-val">${escHtml(e.systemSize || 'Not specified')}</div></div>
+        <div class="detail-item"><div class="detail-key">Received At</div><div class="detail-val">${formatDate(e.createdAt)}</div></div>
+        <div class="detail-item"><div class="detail-key">Source</div><div class="detail-val">${escHtml(e.source || 'Website Form')}</div></div>
+      </div>
+    </div>
+    ${e.message ? `<div class="detail-section"><div class="detail-section-title">💬 Customer Message</div><div style="background:var(--bg);border-radius:10px;padding:14px;font-size:0.88rem;color:var(--text);line-height:1.65;">${escHtml(e.message)}</div></div>` : ''}
+    <div class="modal-actions">
+      <a href="https://wa.me/91${e.phoneNumber.replace(/\D/g,'')}?text=Hello ${encodeURIComponent(e.fullName)}! Thank you for enquiring about SuryaShakti Solar. We would like to discuss your requirement for ${encodeURIComponent(e.serviceRequired)}." target="_blank" class="modal-btn mbt-wa">💬 WhatsApp</a>
+      <a href="tel:${e.phoneNumber}" class="modal-btn mbt-call">📞 Call Now</a>
+      <button class="modal-btn mbt-complete" onclick="markComplete(${e.id})">✅ Mark Complete</button>
+    </div>
+    <div class="detail-section" style="margin-top:20px;">
+      <div class="detail-section-title">⚙️ Update Enquiry</div>
+      <label style="font-size:0.82rem;font-weight:600;color:var(--gray);display:block;margin-bottom:6px;">Status</label>
+      <select class="status-select" id="modalStatus" onchange="updateStatusLocal(${e.id}, this.value)">
+        <option value="0" ${e.status==='New'?'selected':''}>🆕 New</option>
+        <option value="1" ${e.status==='Viewed'?'selected':''}>👁️ Viewed</option>
+        <option value="2" ${e.status==='InProgress'?'selected':''}>⚙️ In Progress</option>
+        <option value="3" ${e.status==='Completed'?'selected':''}>✅ Completed</option>
+        <option value="4" ${e.status==='Cancelled'?'selected':''}>❌ Cancelled</option>
+      </select>
+      <label style="font-size:0.82rem;font-weight:600;color:var(--gray);display:block;margin:14px 0 6px;">Admin Notes</label>
+      <textarea class="notes-textarea" id="modalNotes" placeholder="Follow-up notes, customer feedback...">${escHtml(e.adminNotes || '')}</textarea>
+      <button class="save-btn" onclick="saveEnquiryUpdate(${e.id})">💾 Save Changes</button>
+    </div>
+  `;
+
+  document.getElementById('detailModal').classList.add('open');
+}
+
+async function saveEnquiryUpdate(id) {
+  const status = parseInt(document.getElementById('modalStatus').value);
+  const notes  = document.getElementById('modalNotes').value;
+
+  const statusNames = ['New','Viewed','InProgress','Completed','Cancelled'];
+  const e = allEnquiries.find(x => x.id === id);
+  if (e) { e.status = statusNames[status]; e.adminNotes = notes; }
+
+  try {
+    await fetch(`${API}/enquiry/${id}`, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ status, adminNotes: notes })
+    });
+  } catch(_) {}
+
+  renderTable(filterCurrentData());
+  showToast('✅ Enquiry updated successfully!');
+  closeModalBtn();
+}
+
+async function markComplete(id) {
+  const e = allEnquiries.find(x => x.id === id);
+  if (e) e.status = 'Completed';
+  try { await fetch(`${API}/enquiry/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({status:3}) }); } catch(_) {}
+  renderTable(filterCurrentData());
+  showToast('✅ Marked as Completed!');
+  closeModalBtn();
+}
+
+async function deleteEnquiry(id) {
+  if (!confirm(`Delete Enquiry #${id}? This cannot be undone.`)) return;
+  allEnquiries = allEnquiries.filter(e => e.id !== id);
+  try { await fetch(`${API}/enquiry/${id}`, { method:'DELETE' }); } catch(_) {}
+  renderTable(filterCurrentData());
+  updateStats();
+  showToast('🗑️ Enquiry deleted');
+}
+
+// ─── FILTERS ───
+function filterTable() {
+  renderTable(filterCurrentData());
+}
+function filterCurrentData() {
+  const search  = document.getElementById('searchInput').value.toLowerCase();
+  const status  = document.getElementById('statusFilter').value;
+  const service = document.getElementById('serviceFilter').value;
+  return allEnquiries.filter(e =>
+    (!search || e.fullName.toLowerCase().includes(search) || e.phoneNumber.includes(search) || e.city.toLowerCase().includes(search)) &&
+    (!status || e.status === status) &&
+    (!service || e.serviceRequired === service)
+  );
+}
+function clearFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('statusFilter').value = '';
+  document.getElementById('serviceFilter').value = '';
+  renderTable(allEnquiries);
+}
+function filterByStatus(status) {
+  document.getElementById('statusFilter').value = status;
+  filterTable();
+  document.getElementById('pageTitle').textContent = `${status} Enquiries`;
+}
+function updateStatusLocal(id, val) {
+  const statusNames = ['New','Viewed','InProgress','Completed','Cancelled'];
+  const e = allEnquiries.find(x => x.id === id);
+  if (e) e.status = statusNames[parseInt(val)];
+}
+function updateNewBadge() {
+  const n = allEnquiries.filter(e => e.status === 'New').length;
+  document.getElementById('newBadge').textContent = n;
+  document.getElementById('newBadge').style.display = n > 0 ? '' : 'none';
+}
+
+// ─── EXPORT CSV ───
+function exportCSV() {
+  const headers = ['ID','Name','Phone','Email','City','Service','System Size','Status','Message','Received'];
+  const rows = allEnquiries.map(e => [
+    e.id, e.fullName, e.phoneNumber, e.email||'', e.city,
+    e.serviceRequired, e.systemSize||'', e.status, e.message||'', e.createdAt
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = `SuryaShakti_Enquiries_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('📥 CSV exported successfully!');
+}
+
+// ─── MODAL ───
+function closeModal(e) { if (e.target === document.getElementById('detailModal')) closeModalBtn(); }
+function closeModalBtn() { document.getElementById('detailModal').classList.remove('open'); }
+
+// ─── TOAST ───
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── HELPERS ───
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function statusIcon(s) { return {New:'🆕',Viewed:'👁️',InProgress:'⚙️',Completed:'✅',Cancelled:'❌'}[s]||'❓'; }
+function timeAgo(d) {
+  const diff = Date.now() - new Date(d);
+  const m = Math.floor(diff/60000), h = Math.floor(m/60), day = Math.floor(h/24);
+  if (day>0) return `${day}d ago`; if (h>0) return `${h}h ago`; if(m>0) return `${m}m ago`; return 'Just now';
+}
+function formatDate(d) { return new Date(d).toLocaleString('en-IN', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function isToday(d) { return new Date(d).toDateString() === new Date().toDateString(); }
+function isThisWeek(d) { const now = new Date(); const start = new Date(now.setDate(now.getDate()-now.getDay())); return new Date(d) >= start; }
+function showPage(p) { document.getElementById('pageTitle').textContent = p==='dashboard'?'Dashboard':'All Enquiries'; }
+
+// ─── DEMO DATA (jab backend connect nahi hua) ───
+function getDemoData() {
+  return [
+    {id:1,fullName:'Rahul Sharma',phoneNumber:'9876543210',email:'rahul@email.com',city:'Delhi',serviceRequired:'Solar Installation (On-Grid)',systemSize:'3 kW',status:'New',message:'Need 3kW system for home',adminNotes:'',createdAt:new Date().toISOString(),source:'Website Form'},
+    {id:2,fullName:'Priya Singh',phoneNumber:'8765432109',email:'',city:'Gurugram',serviceRequired:'Free Consultation',systemSize:'',status:'Viewed',message:'Want to know about subsidy',adminNotes:'Called once, no response',createdAt:new Date(Date.now()-3600000).toISOString(),source:'Website Form'},
+    {id:3,fullName:'Amit Kumar',phoneNumber:'7654321098',email:'amit@gmail.com',city:'Noida',serviceRequired:'Solar Installation (Hybrid)',systemSize:'5 kW',status:'InProgress',message:'Office rooftop installation',adminNotes:'Site visit scheduled',createdAt:new Date(Date.now()-86400000).toISOString(),source:'WhatsApp'},
+    {id:4,fullName:'Sunita Devi',phoneNumber:'9988776655',email:'',city:'Faridabad',serviceRequired:'Subsidy Application Help',systemSize:'2 kW',status:'Completed',message:'Need subsidy form help',adminNotes:'Subsidy form submitted',createdAt:new Date(Date.now()-172800000).toISOString(),source:'Website Form'},
+    {id:5,fullName:'Vikram Joshi',phoneNumber:'9123456780',email:'vikram@mail.com',city:'Jaipur',serviceRequired:'AMC / Maintenance',systemSize:'',status:'New',message:'My existing system needs service',adminNotes:'',createdAt:new Date(Date.now()-1800000).toISOString(),source:'Website Form'},
+    {id:6,fullName:'Meena Patel',phoneNumber:'8234567891',email:'',city:'Ahmedabad',serviceRequired:'Solar Installation (Off-Grid)',systemSize:'10 kW',status:'New',message:'Farm solar requirement',adminNotes:'',createdAt:new Date(Date.now()-900000).toISOString(),source:'Website Form'},
+  ];
+}
+</script>
+</body>
+</html>
