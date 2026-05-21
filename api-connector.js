@@ -1,24 +1,5 @@
-// ============================================================
-// api-connector.js — FRONTEND KO BACKEND SE JODTA HAI
-//
-// Yeh file kaise kaam karti hai?
-// 1. User form fill karta hai
-// 2. Yeh file Backend API ko call karti hai (fetch)
-// 3. Backend data save karta hai + notifications bhejta hai
-// 4. User ko success/error dikhata hai
-//
-// Kaise use karein:
-// HTML file mein add karo: <script src="api-connector.js"></script>
-// ============================================================
-
-// Backend ka URL — development mein localhost, production mein real URL
 const API_BASE_URL = 'https://suryashakti-backend-production.up.railway.app/api';
-// Production mein: const API_BASE_URL = 'https://api.suryashakti.in/api';
 
-// ─────────────────────────────────────────────────────────────
-// MAIN FUNCTION: Form submit karo
-// HTML mein: onclick="submitSolarEnquiry()"
-// ─────────────────────────────────────────────────────────────
 async function submitSolarEnquiry() {
   // Step 1: Form fields se data uthao
   const name    = document.getElementById('f_name')?.value.trim() || '';
@@ -68,7 +49,7 @@ async function submitSolarEnquiry() {
       // WhatsApp pe bhi redirect karo (backup as always)
       const waText = buildWhatsAppMessage(name, phone, city, service, kw, msg, result.data?.id);
       setTimeout(() => {
-        window.open(`https://wa.me/917834890440?text=${encodeURIComponent(waText)}`, '_blank');
+       window.location.href = `https://wa.me/917834890440?text=${encodeURIComponent(waText)}`;
       }, 1200);
 
       // Form clear karo
@@ -117,7 +98,7 @@ _Sent from suryashakti.in_`;
 function fallbackToWhatsApp(name, phone, city, service, kw, msg) {
   const text = buildWhatsAppMessage(name, phone, city, service, kw, msg);
   setTimeout(() => {
-    window.open(`https://wa.me/917834890440?text=${encodeURIComponent(text)}`, '_blank');
+    window.location.href = `https://wa.me/917834890440?text=${encodeURIComponent(text)}`;
   }, 600);
 }
 
