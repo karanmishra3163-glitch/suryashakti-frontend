@@ -1485,13 +1485,15 @@ footer {
         <textarea class="form-control" id="f_msg" rows="3" placeholder="Any additional details about your requirements..."></textarea>
       </div>
 
-      <div class="form-note">
+     <div class="form-note">
         <span>✅ Instant WhatsApp</span> – Your request goes directly to our team. We reply within 1 hour.
       </div>
 
-     <button class="btn-submit" onclick="submitSolarEnquiry(event)">
+      <div id="formError" style="display:none;background:#fee2e2;color:#991b1b;padding:12px;border-radius:10px;margin-top:10px;font-weight:600;border:1px solid #f87171;"></div>
+
+      <button class="btn-submit" onclick="submitSolarEnquiry()">
         💬 Send via WhatsApp →
-     </button>
+      </button>
 
       <div class="form-success" id="formSuccess">
         ✅ Redirecting to WhatsApp... Your request will be sent directly to our team!
@@ -1707,7 +1709,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
   });
 });
 </script>
-<div id="formError" style="display:none;background:#fee2e2;color:#991b1b;padding:12px;border-radius:10px;margin-top:10px;font-weight:600;"></div>
-<script src="api-connector.js"></script>
+
 </body>
 </html>
